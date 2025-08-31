@@ -1,0 +1,24 @@
+---
+# tasks file for setup_nginx
+- name: Установка Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Создание страницы
+  copy:
+    content: "Hello from {{ inventory_hostname }}!"
+    dest: /var/www/html/index.html
+
+- name: Конфигурация Nginx
+  template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+  notify: restart nginx
+
+- name: Включение конфигурации
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  notify: restart nginx

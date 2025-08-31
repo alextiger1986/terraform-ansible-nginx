@@ -1,0 +1,33 @@
+---
+- name: Обновить кэш apt
+  hosts: all
+  become: yes
+  tasks:
+    - name: Обновить кэш apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # время в секундах, в течение которого кэш считается актуальным
+
+- name: Настройка всех ВМ
+  hosts: all
+  become: yes
+  roles:
+    - setup_vm
+
+- name: Настройка проксирующего Nginx
+  hosts: example-ubuntu-24-vm3-proxy
+  become: yes
+  roles:
+    - setup_nginx_proxy
+
+- name: Настройка отдающего Nginx
+  hosts: example-ubuntu-24-vm1,example-ubuntu-24-vm2
+  become: yes
+  roles:
+    - setup_nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
